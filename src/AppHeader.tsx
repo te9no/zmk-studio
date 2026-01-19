@@ -176,10 +176,7 @@ export const AppHeader = ({
             <Palette className="inline-block w-4 mx-1" aria-hidden="true" />
           </Button>
           <Popover>
-            <Menu
-              className="shadow-md rounded bg-base-100 text-base-content cursor-pointer overflow-hidden"
-              onAction={(key) => setTheme(parseColorTheme(String(key)))}
-            >
+            <Menu className="shadow-md rounded bg-base-100 text-base-content cursor-pointer overflow-hidden">
               <MenuItem
                 key="zmk"
                 className="px-2 py-1 hover:bg-base-200"
@@ -240,12 +237,7 @@ export const AppHeader = ({
             )}
           </Button>
           <Popover>
-            <Menu
-              className="shadow-md rounded bg-base-100 text-base-content cursor-pointer overflow-hidden"
-              onAction={(key) =>
-                setScheme(parseColorSchemePreference(String(key)))
-              }
-            >
+            <Menu className="shadow-md rounded bg-base-100 text-base-content cursor-pointer overflow-hidden">
               <MenuItem
                 key="system"
                 className="px-2 py-1 hover:bg-base-200"
