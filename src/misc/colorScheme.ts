@@ -1,3 +1,5 @@
+import { reapplyColorTheme } from "./colorTheme";
+
 export type ColorSchemePreference = "system" | "light" | "dark";
 
 export function parseColorSchemePreference(
@@ -17,5 +19,8 @@ export function applyColorSchemePreference(pref: ColorSchemePreference) {
   } else {
     root.style.colorScheme = pref;
   }
+
+  // Keep inline theme variables in sync with the effective scheme.
+  reapplyColorTheme();
 }
 
