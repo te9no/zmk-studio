@@ -12,7 +12,6 @@ import { hid_usage_get_labels, hid_usage_from_page_and_id } from "../hid-usages"
 
 type BehaviorMap = Record<number, GetBehaviorDetailsResponse>;
 
-type Mode = "quick" | "advanced";
 type BehaviorGroup = "key" | "layerTap" | "bluetooth" | "modTap" | "other";
 type Category = "main" | "mods" | "nav" | "func" | "media";
 type BluetoothKind = "bluetooth" | "output";
@@ -457,7 +456,6 @@ export function KeyAssignPanel({
   onExitEditMode: () => void;
   onBindingChanged: (binding: BehaviorBinding) => void;
 }) {
-  const [mode, setMode] = useState<Mode>("quick");
   const [behaviorGroup, setBehaviorGroup] = useState<BehaviorGroup>("key");
   const [category, setCategory] = useState<Category>("main");
   const [bluetoothKind, setBluetoothKind] = useState<BluetoothKind>("bluetooth");
@@ -1024,30 +1022,6 @@ export function KeyAssignPanel({
         <div className="flex items-center gap-2">
           <button
             type="button"
-            className={[
-              "px-3 py-1 rounded text-sm border",
-              mode === "quick"
-                ? "bg-primary text-primary-content border-primary"
-                : "bg-base-100 text-base-content border-base-300 hover:bg-base-300",
-            ].join(" ")}
-            onClick={() => setMode("quick")}
-          >
-            Quick
-          </button>
-          <button
-            type="button"
-            className={[
-              "px-3 py-1 rounded text-sm border",
-              mode === "advanced"
-                ? "bg-primary text-primary-content border-primary"
-                : "bg-base-100 text-base-content border-base-300 hover:bg-base-300",
-            ].join(" ")}
-            onClick={() => setMode("advanced")}
-          >
-            Advanced
-          </button>
-          <button
-            type="button"
             className="px-3 py-1 rounded text-sm border bg-base-100 text-base-content border-base-300 hover:bg-base-300 disabled:opacity-50"
             disabled={!canEdit}
             onClick={onExitEditMode}
@@ -1057,8 +1031,7 @@ export function KeyAssignPanel({
         </div>
       </div>
 
-      {mode === "quick" ? (
-        <div className="flex flex-col gap-2 h-full min-h-0">
+      <div className="flex flex-col gap-2 h-full min-h-0">
           <div className="flex items-center gap-2 flex-wrap">
             {(Object.keys(GROUP_LABELS) as BehaviorGroup[]).map((g) => (
               <CategoryButton
@@ -1563,22 +1536,6 @@ export function KeyAssignPanel({
           )}
           </div>
         </div>
-      ) : (
-        <div className="rounded border border-base-300 bg-base-100 p-2 h-full overflow-auto">
-          {selectedBinding ? (
-            <BehaviorBindingPicker
-              binding={selectedBinding}
-              behaviors={Object.values(behaviors)}
-              layers={layers}
-              onBindingChanged={onBindingChanged}
-            />
-          ) : (
-            <div className="text-sm text-base-content/70">
-              Select a key to edit.
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }
