@@ -178,27 +178,23 @@ function getEffectiveScheme(): "light" | "dark" {
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
-function toRgbList(value: string): string {
-  // Use comma-separated lists for best compatibility with rgb(var(--x) / alpha).
-  return value.trim().replace(/\s+/g, ", ");
-}
-
 export function applyColorTheme(theme: ColorTheme) {
   const root = document.documentElement;
   root.dataset.theme = theme;
 
   const vars = THEME_VARS[theme][getEffectiveScheme()];
-  root.style.setProperty("--color-primary", toRgbList(vars.primary));
-  root.style.setProperty("--color-primary-content", toRgbList(vars.primaryContent));
-  root.style.setProperty("--color-secondary", toRgbList(vars.secondary));
-  root.style.setProperty("--color-accent", toRgbList(vars.accent));
-  root.style.setProperty("--color-base-content", toRgbList(vars.baseContent));
-  root.style.setProperty("--color-base-100", toRgbList(vars.base100));
-  root.style.setProperty("--color-base-200", toRgbList(vars.base200));
-  root.style.setProperty("--color-base-300", toRgbList(vars.base300));
+  // Use space-separated triples so Tailwind's generated CSS like
+  // `rgb(var(--color-base-100) / var(--tw-bg-opacity))` stays valid.
+  root.style.setProperty("--color-primary", vars.primary);
+  root.style.setProperty("--color-primary-content", vars.primaryContent);
+  root.style.setProperty("--color-secondary", vars.secondary);
+  root.style.setProperty("--color-accent", vars.accent);
+  root.style.setProperty("--color-base-content", vars.baseContent);
+  root.style.setProperty("--color-base-100", vars.base100);
+  root.style.setProperty("--color-base-200", vars.base200);
+  root.style.setProperty("--color-base-300", vars.base300);
 }
 
 export function reapplyColorTheme() {
   applyColorTheme(parseColorTheme(document.documentElement.dataset.theme));
 }
-
