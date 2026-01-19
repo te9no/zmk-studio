@@ -25,12 +25,12 @@ import { Keymap as KeymapComp } from "./Keymap";
 import { useConnectedDeviceData } from "../rpc/useConnectedDeviceData";
 import { ConnectionContext } from "../rpc/ConnectionContext";
 import { UndoRedoContext } from "../undoRedo";
-import { BehaviorBindingPicker } from "../behaviors/BehaviorBindingPicker";
 import { produce } from "immer";
 import { LockStateContext } from "../rpc/LockStateContext";
 import { LockState } from "@zmkfirmware/zmk-studio-ts-client/core";
 import { deserializeLayoutZoom, LayoutZoom } from "./PhysicalLayout";
 import { useLocalStorageState } from "../misc/useLocalStorageState";
+import { KeyAssignPanel } from "./KeyAssignPanel";
 
 type BehaviorMap = Record<number, GetBehaviorDetailsResponse>;
 
@@ -293,7 +293,11 @@ export default function Keyboard() {
   );
 
   let selectedBinding = useMemo(() => {
-    if (keymap == null || selectedKeyPosition == null || !keymap.layers[selectedLayerIndex]) {
+    if (
+      keymap == null ||
+      selectedKeyPosition == null ||
+      !keymap.layers[selectedLayerIndex]
+    ) {
       return null;
     }
 
@@ -559,15 +563,18 @@ export default function Keyboard() {
           </select>
         </div>
       )}
-      {keymap && selectedBinding && (
-        <div className="p-2 col-start-2 row-start-2 bg-base-200">
-          <BehaviorBindingPicker
-            binding={selectedBinding}
-            behaviors={Object.values(behaviors)}
+      {keymap && behaviors && (
+        <div className="p-2 col-start-2 row-start-2 bg-base-200 min-w-0">
+          <KeyAssignPanel
+            selectedKeyPosition={selectedKeyPosition}
+            selectedLayerIndex={selectedLayerIndex}
+            selectedBinding={selectedBinding}
+            behaviors={behaviors}
             layers={keymap.layers.map(({ id, name }, li) => ({
               id,
               name: name || li.toLocaleString(),
             }))}
+            onExitEditMode={() => setSelectedKeyPosition(undefined)}
             onBindingChanged={doUpdateBinding}
           />
         </div>
