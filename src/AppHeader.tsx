@@ -71,6 +71,16 @@ export const AppHeader = ({
   const lockState = useContext(LockStateContext);
   const connectionState = useContext(ConnectionContext);
 
+  const setTheme = (theme: ColorTheme) => {
+    setColorTheme(theme);
+    applyColorTheme(theme);
+  };
+
+  const setScheme = (scheme: ColorSchemePreference) => {
+    setColorScheme(scheme);
+    applyColorSchemePreference(scheme);
+  };
+
   useEffect(() => {
     if (
       (!connectionState.conn ||
@@ -165,40 +175,49 @@ export const AppHeader = ({
             </Button>
           </Tooltip>
           <Popover>
-            <Menu className="shadow-md rounded bg-base-100 text-base-content cursor-pointer overflow-hidden">
+            <Menu
+              className="shadow-md rounded bg-base-100 text-base-content cursor-pointer overflow-hidden"
+              onAction={(key) => setTheme(parseColorTheme(String(key)))}
+            >
               <MenuItem
+                key="zmk"
                 className="px-2 py-1 hover:bg-base-200"
-                onAction={() => setColorTheme("zmk")}
+                onAction={() => setTheme("zmk")}
               >
                 Default
               </MenuItem>
               <MenuItem
+                key="ocean"
                 className="px-2 py-1 hover:bg-base-200"
-                onAction={() => setColorTheme("ocean")}
+                onAction={() => setTheme("ocean")}
               >
                 Ocean
               </MenuItem>
               <MenuItem
+                key="forest"
                 className="px-2 py-1 hover:bg-base-200"
-                onAction={() => setColorTheme("forest")}
+                onAction={() => setTheme("forest")}
               >
                 Forest
               </MenuItem>
               <MenuItem
+                key="sakura"
                 className="px-2 py-1 hover:bg-base-200"
-                onAction={() => setColorTheme("sakura")}
+                onAction={() => setTheme("sakura")}
               >
                 Sakura
               </MenuItem>
               <MenuItem
+                key="sunset"
                 className="px-2 py-1 hover:bg-base-200"
-                onAction={() => setColorTheme("sunset")}
+                onAction={() => setTheme("sunset")}
               >
                 Sunset
               </MenuItem>
               <MenuItem
+                key="mono"
                 className="px-2 py-1 hover:bg-base-200"
-                onAction={() => setColorTheme("mono")}
+                onAction={() => setTheme("mono")}
               >
                 Mono
               </MenuItem>
@@ -222,22 +241,30 @@ export const AppHeader = ({
             </Button>
           </Tooltip>
           <Popover>
-            <Menu className="shadow-md rounded bg-base-100 text-base-content cursor-pointer overflow-hidden">
+            <Menu
+              className="shadow-md rounded bg-base-100 text-base-content cursor-pointer overflow-hidden"
+              onAction={(key) =>
+                setScheme(parseColorSchemePreference(String(key)))
+              }
+            >
               <MenuItem
+                key="system"
                 className="px-2 py-1 hover:bg-base-200"
-                onAction={() => setColorScheme("system")}
+                onAction={() => setScheme("system")}
               >
                 System
               </MenuItem>
               <MenuItem
+                key="light"
                 className="px-2 py-1 hover:bg-base-200"
-                onAction={() => setColorScheme("light")}
+                onAction={() => setScheme("light")}
               >
                 Light
               </MenuItem>
               <MenuItem
+                key="dark"
                 className="px-2 py-1 hover:bg-base-200"
-                onAction={() => setColorScheme("dark")}
+                onAction={() => setScheme("dark")}
               >
                 Dark
               </MenuItem>
