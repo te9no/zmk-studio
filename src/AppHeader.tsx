@@ -169,11 +169,12 @@ export const AppHeader = ({
       </MenuTrigger>
       <div className="flex justify-end gap-1 px-2">
         <MenuTrigger>
-          <Tooltip label="Palette">
-            <Button className="flex items-center justify-center p-1.5 rounded enabled:hover:bg-base-300">
-              <Palette className="inline-block w-4 mx-1" aria-label="Palette" />
-            </Button>
-          </Tooltip>
+          <Button
+            className="flex items-center justify-center p-1.5 rounded enabled:hover:bg-base-300"
+            aria-label="Palette"
+          >
+            <Palette className="inline-block w-4 mx-1" aria-hidden="true" />
+          </Button>
           <Popover>
             <Menu
               className="shadow-md rounded bg-base-100 text-base-content cursor-pointer overflow-hidden"
@@ -226,20 +227,18 @@ export const AppHeader = ({
         </MenuTrigger>
 
         <MenuTrigger>
-          <Tooltip label="Color scheme">
-            <Button className="flex items-center justify-center p-1.5 rounded enabled:hover:bg-base-300">
-              {colorScheme === "light" ? (
-                <Sun className="inline-block w-4 mx-1" aria-label="Theme: light" />
-              ) : colorScheme === "dark" ? (
-                <Moon className="inline-block w-4 mx-1" aria-label="Theme: dark" />
-              ) : (
-                <Monitor
-                  className="inline-block w-4 mx-1"
-                  aria-label="Theme: system"
-                />
-              )}
-            </Button>
-          </Tooltip>
+          <Button
+            className="flex items-center justify-center p-1.5 rounded enabled:hover:bg-base-300"
+            aria-label="Color scheme"
+          >
+            {colorScheme === "light" ? (
+              <Sun className="inline-block w-4 mx-1" aria-hidden="true" />
+            ) : colorScheme === "dark" ? (
+              <Moon className="inline-block w-4 mx-1" aria-hidden="true" />
+            ) : (
+              <Monitor className="inline-block w-4 mx-1" aria-hidden="true" />
+            )}
+          </Button>
           <Popover>
             <Menu
               className="shadow-md rounded bg-base-100 text-base-content cursor-pointer overflow-hidden"
