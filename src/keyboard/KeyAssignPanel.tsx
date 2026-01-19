@@ -1267,6 +1267,10 @@ export function KeyAssignPanel({
               const wantsProfile =
                 selectedActionName === "Select Profile" ||
                 selectedActionName === "Clear Selected Profile";
+              const fallbackProfileParam: "param1" | "param2" =
+                bluetoothOrder.actionParam === "param1" ? "param2" : "param1";
+              const resolvedProfileParam: "param1" | "param2" =
+                bluetoothOrder.profileParam ?? fallbackProfileParam;
               const profileDescsAll =
                 bluetoothOrder.profileParam && bluetoothBehavior
                   ? collectConstantChoices(bluetoothBehavior, bluetoothOrder.profileParam)
@@ -1300,15 +1304,13 @@ export function KeyAssignPanel({
                             const param1 =
                               bluetoothOrder.actionParam === "param1"
                                 ? value
-                                : bluetoothOrder.profileParam === "param1" &&
-                                    needsProfile
+                                : wantsProfile && resolvedProfileParam === "param1"
                                   ? effectiveProfile
                                   : 0;
                             const param2 =
                               bluetoothOrder.actionParam === "param2"
                                 ? value
-                                : bluetoothOrder.profileParam === "param2" &&
-                                    needsProfile
+                                : wantsProfile && resolvedProfileParam === "param2"
                                   ? effectiveProfile
                                   : 0;
 
@@ -1341,11 +1343,33 @@ export function KeyAssignPanel({
                           className="h-8 px-2 rounded border border-base-300 bg-base-100 text-base-content w-28"
                           type="number"
                           min={effectiveProfileDescs[0].range.min}
-                          max={effectiveProfileDescs[0].range.max}
+                          max={Math.min(effectiveProfileDescs[0].range.max, 5)}
                           value={effectiveProfile}
-                          onChange={(e) =>
-                            setBluetoothProfileValue(parseInt(e.target.value))
-                          }
+                          onChange={(e) => {
+                            const nextProfile = parseInt(e.target.value);
+                            setBluetoothProfileValue(nextProfile);
+                            if (!canEdit || !wantsProfile) return;
+                            if (selectedAction === undefined) return;
+
+                            const param1 =
+                              bluetoothOrder.actionParam === "param1"
+                                ? selectedAction
+                                : resolvedProfileParam === "param1"
+                                  ? nextProfile
+                                  : 0;
+                            const param2 =
+                              bluetoothOrder.actionParam === "param2"
+                                ? selectedAction
+                                : resolvedProfileParam === "param2"
+                                  ? nextProfile
+                                  : 0;
+
+                            onBindingChanged({
+                              behaviorId: bluetoothBehavior.id,
+                              param1,
+                              param2,
+                            });
+                          }}
                         />
                       ) : effectiveProfileDescs.length > 0 &&
                         effectiveProfileDescs.every(
@@ -1354,9 +1378,31 @@ export function KeyAssignPanel({
                         <select
                           className="h-8 px-2 rounded border border-base-300 bg-base-100 text-base-content"
                           value={effectiveProfile}
-                          onChange={(e) =>
-                            setBluetoothProfileValue(parseInt(e.target.value))
-                          }
+                          onChange={(e) => {
+                            const nextProfile = parseInt(e.target.value);
+                            setBluetoothProfileValue(nextProfile);
+                            if (!canEdit || !wantsProfile) return;
+                            if (selectedAction === undefined) return;
+
+                            const param1 =
+                              bluetoothOrder.actionParam === "param1"
+                                ? selectedAction
+                                : resolvedProfileParam === "param1"
+                                  ? nextProfile
+                                  : 0;
+                            const param2 =
+                              bluetoothOrder.actionParam === "param2"
+                                ? selectedAction
+                                : resolvedProfileParam === "param2"
+                                  ? nextProfile
+                                  : 0;
+
+                            onBindingChanged({
+                              behaviorId: bluetoothBehavior.id,
+                              param1,
+                              param2,
+                            });
+                          }}
                         >
                           {effectiveProfileDescs.map((d) => (
                             <option key={d.constant!} value={d.constant!}>
@@ -1368,11 +1414,33 @@ export function KeyAssignPanel({
                         <select
                           className="h-8 px-2 rounded border border-base-300 bg-base-100 text-base-content"
                           value={effectiveProfile}
-                          onChange={(e) =>
-                            setBluetoothProfileValue(parseInt(e.target.value))
-                          }
+                          onChange={(e) => {
+                            const nextProfile = parseInt(e.target.value);
+                            setBluetoothProfileValue(nextProfile);
+                            if (!canEdit) return;
+                            if (selectedAction === undefined) return;
+
+                            const param1 =
+                              bluetoothOrder.actionParam === "param1"
+                                ? selectedAction
+                                : resolvedProfileParam === "param1"
+                                  ? nextProfile
+                                  : 0;
+                            const param2 =
+                              bluetoothOrder.actionParam === "param2"
+                                ? selectedAction
+                                : resolvedProfileParam === "param2"
+                                  ? nextProfile
+                                  : 0;
+
+                            onBindingChanged({
+                              behaviorId: bluetoothBehavior.id,
+                              param1,
+                              param2,
+                            });
+                          }}
                         >
-                          {Array.from({ length: 10 }, (_v, i) => i).map((n) => (
+                          {Array.from({ length: 6 }, (_v, i) => i).map((n) => (
                             <option key={n} value={n}>
                               {n}
                             </option>
