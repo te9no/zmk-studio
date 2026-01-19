@@ -159,6 +159,7 @@ function useLayouts(): [
 }
 
 export default function Keyboard() {
+  const lockState = useContext(LockStateContext);
   const [
     layouts,
     _setLayouts,
@@ -191,6 +192,122 @@ export default function Keyboard() {
     setSelectedLayerIndex(0);
     setSelectedKeyPosition(undefined);
   }, [conn]);
+
+  const exportKeymap = useCallback(() => {
+    if (!keymap) {
+      return;
+    }
+
+    const payload = {
+      format: "zmk-studio-keymap",
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      keymap: {
+        layers: keymap.layers.map((l) => ({
+          name: l.name,
+          bindings: l.bindings.map((b) => ({
+            behaviorId: b.behaviorId,
+            param1: b.param1,
+            param2: b.param2,
+          })),
+        })),
+      },
+    };
+
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "zmk-studio-keymap.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [keymap]);
+
+  const importKeymap = useCallback(
+    async (file: File) => {
+      if (!conn.conn) {
+        window.alert("Not connected");
+        return;
+      }
+      if (lockState != LockState.ZMK_STUDIO_CORE_LOCK_STATE_UNLOCKED) {
+        window.alert("Unlock the device to import a keymap");
+        return;
+      }
+      if (!keymap) {
+        window.alert("Keymap not loaded yet");
+        return;
+      }
+
+      let parsed: any;
+      try {
+        parsed = JSON.parse(await file.text());
+      } catch {
+        window.alert("Invalid JSON file");
+        return;
+      }
+
+      const importedLayers =
+        parsed?.keymap?.layers || parsed?.layers || parsed?.keymap?.getKeymap?.layers;
+      if (!Array.isArray(importedLayers) || importedLayers.length === 0) {
+        window.alert("Invalid keymap format (missing layers)");
+        return;
+      }
+
+      const maxLayers = Math.min(keymap.layers.length, importedLayers.length);
+
+      for (let layerIndex = 0; layerIndex < maxLayers; layerIndex++) {
+        const layerId = keymap.layers[layerIndex].id;
+        const currentBindings = keymap.layers[layerIndex].bindings;
+        const nextBindings = importedLayers[layerIndex]?.bindings;
+        if (!Array.isArray(nextBindings)) {
+          continue;
+        }
+
+        const maxKeys = Math.min(currentBindings.length, nextBindings.length);
+        for (let keyPosition = 0; keyPosition < maxKeys; keyPosition++) {
+          const oldBinding = currentBindings[keyPosition];
+          const nextBinding = nextBindings[keyPosition];
+          if (!nextBinding) continue;
+
+          const binding = {
+            behaviorId: nextBinding.behaviorId ?? 0,
+            param1: nextBinding.param1 ?? 0,
+            param2: nextBinding.param2 ?? 0,
+          };
+
+          if (
+            oldBinding.behaviorId === binding.behaviorId &&
+            oldBinding.param1 === binding.param1 &&
+            oldBinding.param2 === binding.param2
+          ) {
+            continue;
+          }
+
+          const resp = await call_rpc(conn.conn, {
+            keymap: { setLayerBinding: { layerId, keyPosition, binding } },
+          });
+
+          if (
+            resp.keymap?.setLayerBinding !==
+            SetLayerBindingResponse.SET_LAYER_BINDING_RESP_OK
+          ) {
+            console.error("Failed to set binding", resp.keymap?.setLayerBinding);
+            window.alert("Failed to import keymap (setLayerBinding error)");
+            return;
+          }
+
+          setKeymap(
+            produce((draft: any) => {
+              draft.layers[layerIndex].bindings[keyPosition] = binding;
+            })
+          );
+        }
+      }
+    },
+    [conn, lockState, keymap, setKeymap]
+  );
 
   useEffect(() => {
     async function performSetRequest() {
@@ -576,6 +693,13 @@ export default function Keyboard() {
             }))}
             onExitEditMode={() => setSelectedKeyPosition(undefined)}
             onBindingChanged={doUpdateBinding}
+            canImportExport={
+              !!conn.conn &&
+              !!keymap &&
+              lockState == LockState.ZMK_STUDIO_CORE_LOCK_STATE_UNLOCKED
+            }
+            onExportKeymap={exportKeymap}
+            onImportKeymap={importKeymap}
           />
         </div>
       )}

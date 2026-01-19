@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type {
   BehaviorBindingParametersSet,
@@ -447,6 +447,9 @@ export function KeyAssignPanel({
   layers,
   onExitEditMode,
   onBindingChanged,
+  canImportExport,
+  onExportKeymap,
+  onImportKeymap,
 }: {
   selectedKeyPosition: number | undefined;
   selectedLayerIndex: number;
@@ -455,6 +458,9 @@ export function KeyAssignPanel({
   layers: { id: number; name: string }[];
   onExitEditMode: () => void;
   onBindingChanged: (binding: BehaviorBinding) => void;
+  canImportExport: boolean;
+  onExportKeymap: () => void;
+  onImportKeymap: (file: File) => void;
 }) {
   const [behaviorGroup, setBehaviorGroup] = useState<BehaviorGroup>("key");
   const [category, setCategory] = useState<Category>("main");
@@ -1001,6 +1007,8 @@ export function KeyAssignPanel({
     setBluetoothProfileValue(undefined);
   }, [bluetoothBehavior, bluetoothOrder, activeBluetooth, bluetoothActions]);
 
+  const importInputRef = useRef<HTMLInputElement>(null);
+
   return (
     <div className="flex flex-col gap-2 h-full min-h-0">
       <div className="flex items-center justify-between gap-2">
@@ -1020,6 +1028,35 @@ export function KeyAssignPanel({
           )}
         </div>
         <div className="flex items-center gap-2">
+          <input
+            ref={importInputRef}
+            type="file"
+            accept="application/json,.json"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                onImportKeymap(file);
+              }
+              e.target.value = "";
+            }}
+          />
+          <button
+            type="button"
+            className="px-3 py-1 rounded text-sm border bg-base-100 text-base-content border-base-300 hover:bg-base-300 disabled:opacity-50"
+            disabled={!canImportExport}
+            onClick={() => onExportKeymap()}
+          >
+            Export
+          </button>
+          <button
+            type="button"
+            className="px-3 py-1 rounded text-sm border bg-base-100 text-base-content border-base-300 hover:bg-base-300 disabled:opacity-50"
+            disabled={!canImportExport}
+            onClick={() => importInputRef.current?.click()}
+          >
+            Import
+          </button>
           <button
             type="button"
             className="px-3 py-1 rounded text-sm border bg-base-100 text-base-content border-base-300 hover:bg-base-300 disabled:opacity-50"
