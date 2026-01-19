@@ -13,18 +13,14 @@ export default {
         sans: ["Inter", "system-ui"],
       },
       colors: {
-        primary:
-          "light-dark(oklch(49.12% 0.3096 285.75), oklch(65.69% 0.196 285.75))",
-        "primary-content":
-          "light-dark(oklch(0.89824 0.06192 285.75), oklch(0.13138 0.0392 285.75))",
-        secondary:
-          "light-dark(oklch(69.71% 0.329 342.55), oklch(74.8% 0.26 342.55))",
-        accent:
-          "light-dark(oklch(76.76% 0.184 183.61), oklch(74.51% 0.167 183.61))",
-        "base-content": "light-dark(#1f2937, #A6ADBB)",
-        "base-100": "light-dark(oklch(100% 0 0), #1d232a)",
-        "base-200": "light-dark(#F2F2F2, #191e24)",
-        "base-300": "light-dark(#E5E6E6, #15191e)",
+        primary: "rgb(var(--color-primary) / <alpha-value>)",
+        "primary-content": "rgb(var(--color-primary-content) / <alpha-value>)",
+        secondary: "rgb(var(--color-secondary) / <alpha-value>)",
+        accent: "rgb(var(--color-accent) / <alpha-value>)",
+        "base-content": "rgb(var(--color-base-content) / <alpha-value>)",
+        "base-100": "rgb(var(--color-base-100) / <alpha-value>)",
+        "base-200": "rgb(var(--color-base-200) / <alpha-value>)",
+        "base-300": "rgb(var(--color-base-300) / <alpha-value>)",
       },
     },
 

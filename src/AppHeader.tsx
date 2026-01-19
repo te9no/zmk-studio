@@ -12,9 +12,26 @@ import { useModalRef } from "./misc/useModalRef";
 import { LockStateContext } from "./rpc/LockStateContext";
 import { LockState } from "@zmkfirmware/zmk-studio-ts-client/core";
 import { ConnectionContext } from "./rpc/ConnectionContext";
-import { ChevronDown, Undo2, Redo2, Save, Trash2 } from "lucide-react";
+import {
+  ChevronDown,
+  Monitor,
+  Moon,
+  Palette,
+  Sun,
+  Undo2,
+  Redo2,
+  Save,
+  Trash2,
+} from "lucide-react";
 import { Tooltip } from "./misc/Tooltip";
 import { GenericModal } from "./GenericModal";
+import { useLocalStorageState } from "./misc/useLocalStorageState";
+import {
+  applyColorSchemePreference,
+  ColorSchemePreference,
+  parseColorSchemePreference,
+} from "./misc/colorScheme";
+import { applyColorTheme, ColorTheme, parseColorTheme } from "./misc/colorTheme";
 
 export interface AppHeaderProps {
   connectedDeviceLabel?: string;
@@ -40,6 +57,16 @@ export const AppHeader = ({
   onResetSettings,
 }: AppHeaderProps) => {
   const [showSettingsReset, setShowSettingsReset] = useState(false);
+  const [colorScheme, setColorScheme] = useLocalStorageState<ColorSchemePreference>(
+    "colorScheme",
+    "system",
+    { deserialize: parseColorSchemePreference }
+  );
+  const [colorTheme, setColorTheme] = useLocalStorageState<ColorTheme>(
+    "colorTheme",
+    "zmk",
+    { deserialize: parseColorTheme }
+  );
 
   const lockState = useContext(LockStateContext);
   const connectionState = useContext(ConnectionContext);
@@ -52,7 +79,15 @@ export const AppHeader = ({
     ) {
       setShowSettingsReset(false);
     }
-  }, [lockState, showSettingsReset]);
+  }, [connectionState.conn, lockState, showSettingsReset]);
+
+  useEffect(() => {
+    applyColorSchemePreference(colorScheme);
+  }, [colorScheme]);
+
+  useEffect(() => {
+    applyColorTheme(colorTheme);
+  }, [colorTheme]);
 
   const showSettingsRef = useModalRef(showSettingsReset);
   const [unsaved, setUnsaved] = useConnectedDeviceData<boolean>(
@@ -123,6 +158,93 @@ export const AppHeader = ({
         </Popover>
       </MenuTrigger>
       <div className="flex justify-end gap-1 px-2">
+        <MenuTrigger>
+          <Tooltip label="Palette">
+            <Button className="flex items-center justify-center p-1.5 rounded enabled:hover:bg-base-300">
+              <Palette className="inline-block w-4 mx-1" aria-label="Palette" />
+            </Button>
+          </Tooltip>
+          <Popover>
+            <Menu className="shadow-md rounded bg-base-100 text-base-content cursor-pointer overflow-hidden">
+              <MenuItem
+                className="px-2 py-1 hover:bg-base-200"
+                onAction={() => setColorTheme("zmk")}
+              >
+                Default
+              </MenuItem>
+              <MenuItem
+                className="px-2 py-1 hover:bg-base-200"
+                onAction={() => setColorTheme("ocean")}
+              >
+                Ocean
+              </MenuItem>
+              <MenuItem
+                className="px-2 py-1 hover:bg-base-200"
+                onAction={() => setColorTheme("forest")}
+              >
+                Forest
+              </MenuItem>
+              <MenuItem
+                className="px-2 py-1 hover:bg-base-200"
+                onAction={() => setColorTheme("sakura")}
+              >
+                Sakura
+              </MenuItem>
+              <MenuItem
+                className="px-2 py-1 hover:bg-base-200"
+                onAction={() => setColorTheme("sunset")}
+              >
+                Sunset
+              </MenuItem>
+              <MenuItem
+                className="px-2 py-1 hover:bg-base-200"
+                onAction={() => setColorTheme("mono")}
+              >
+                Mono
+              </MenuItem>
+            </Menu>
+          </Popover>
+        </MenuTrigger>
+
+        <MenuTrigger>
+          <Tooltip label="Color scheme">
+            <Button className="flex items-center justify-center p-1.5 rounded enabled:hover:bg-base-300">
+              {colorScheme === "light" ? (
+                <Sun className="inline-block w-4 mx-1" aria-label="Theme: light" />
+              ) : colorScheme === "dark" ? (
+                <Moon className="inline-block w-4 mx-1" aria-label="Theme: dark" />
+              ) : (
+                <Monitor
+                  className="inline-block w-4 mx-1"
+                  aria-label="Theme: system"
+                />
+              )}
+            </Button>
+          </Tooltip>
+          <Popover>
+            <Menu className="shadow-md rounded bg-base-100 text-base-content cursor-pointer overflow-hidden">
+              <MenuItem
+                className="px-2 py-1 hover:bg-base-200"
+                onAction={() => setColorScheme("system")}
+              >
+                System
+              </MenuItem>
+              <MenuItem
+                className="px-2 py-1 hover:bg-base-200"
+                onAction={() => setColorScheme("light")}
+              >
+                Light
+              </MenuItem>
+              <MenuItem
+                className="px-2 py-1 hover:bg-base-200"
+                onAction={() => setColorScheme("dark")}
+              >
+                Dark
+              </MenuItem>
+            </Menu>
+          </Popover>
+        </MenuTrigger>
+
         {onUndo && (
           <Tooltip label="Undo">
             <Button

@@ -14,6 +14,157 @@ html {
   color-scheme: light dark;
 }
 
+:root {
+  /* Defaults (ZMK theme, light) */
+  --color-primary: 124 58 237;
+  --color-primary-content: 245 243 255;
+  --color-secondary: 236 72 153;
+  --color-accent: 20 184 166;
+  --color-base-content: 31 41 55;
+  --color-base-100: 255 255 255;
+  --color-base-200: 242 242 242;
+  --color-base-300: 229 230 230;
+}
+
+:root[data-color-scheme="dark"] {
+  --color-primary: 168 85 247;
+  --color-primary-content: 10 5 20;
+  --color-secondary: 244 114 182;
+  --color-accent: 45 212 191;
+  --color-base-content: 166 173 187;
+  --color-base-100: 29 35 42;
+  --color-base-200: 25 30 36;
+  --color-base-300: 21 25 30;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-color-scheme="system"] {
+    --color-primary: 168 85 247;
+    --color-primary-content: 10 5 20;
+    --color-secondary: 244 114 182;
+    --color-accent: 45 212 191;
+    --color-base-content: 166 173 187;
+    --color-base-100: 29 35 42;
+    --color-base-200: 25 30 36;
+    --color-base-300: 21 25 30;
+  }
+}
+
+/* Ocean */
+:root[data-theme="ocean"][data-color-scheme="light"],
+:root[data-theme="ocean"][data-color-scheme="system"] {
+  --color-primary: 14 165 233;
+  --color-primary-content: 240 249 255;
+  --color-secondary: 59 130 246;
+  --color-accent: 16 185 129;
+}
+:root[data-theme="ocean"][data-color-scheme="dark"] {
+  --color-primary: 56 189 248;
+  --color-primary-content: 2 6 23;
+  --color-secondary: 96 165 250;
+  --color-accent: 52 211 153;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="ocean"][data-color-scheme="system"] {
+    --color-primary: 56 189 248;
+    --color-primary-content: 2 6 23;
+    --color-secondary: 96 165 250;
+    --color-accent: 52 211 153;
+  }
+}
+
+/* Forest */
+:root[data-theme="forest"][data-color-scheme="light"],
+:root[data-theme="forest"][data-color-scheme="system"] {
+  --color-primary: 34 197 94;
+  --color-primary-content: 240 253 244;
+  --color-secondary: 132 204 22;
+  --color-accent: 20 184 166;
+}
+:root[data-theme="forest"][data-color-scheme="dark"] {
+  --color-primary: 74 222 128;
+  --color-primary-content: 3 7 18;
+  --color-secondary: 163 230 53;
+  --color-accent: 45 212 191;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="forest"][data-color-scheme="system"] {
+    --color-primary: 74 222 128;
+    --color-primary-content: 3 7 18;
+    --color-secondary: 163 230 53;
+    --color-accent: 45 212 191;
+  }
+}
+
+/* Sakura */
+:root[data-theme="sakura"][data-color-scheme="light"],
+:root[data-theme="sakura"][data-color-scheme="system"] {
+  --color-primary: 236 72 153;
+  --color-primary-content: 255 241 242;
+  --color-secondary: 244 63 94;
+  --color-accent: 168 85 247;
+}
+:root[data-theme="sakura"][data-color-scheme="dark"] {
+  --color-primary: 244 114 182;
+  --color-primary-content: 23 3 11;
+  --color-secondary: 251 113 133;
+  --color-accent: 192 132 252;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="sakura"][data-color-scheme="system"] {
+    --color-primary: 244 114 182;
+    --color-primary-content: 23 3 11;
+    --color-secondary: 251 113 133;
+    --color-accent: 192 132 252;
+  }
+}
+
+/* Sunset */
+:root[data-theme="sunset"][data-color-scheme="light"],
+:root[data-theme="sunset"][data-color-scheme="system"] {
+  --color-primary: 249 115 22;
+  --color-primary-content: 255 247 237;
+  --color-secondary: 245 158 11;
+  --color-accent: 239 68 68;
+}
+:root[data-theme="sunset"][data-color-scheme="dark"] {
+  --color-primary: 251 146 60;
+  --color-primary-content: 20 7 2;
+  --color-secondary: 252 211 77;
+  --color-accent: 248 113 113;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="sunset"][data-color-scheme="system"] {
+    --color-primary: 251 146 60;
+    --color-primary-content: 20 7 2;
+    --color-secondary: 252 211 77;
+    --color-accent: 248 113 113;
+  }
+}
+
+/* Mono */
+:root[data-theme="mono"][data-color-scheme="light"],
+:root[data-theme="mono"][data-color-scheme="system"] {
+  --color-primary: 17 24 39;
+  --color-primary-content: 255 255 255;
+  --color-secondary: 75 85 99;
+  --color-accent: 107 114 128;
+}
+:root[data-theme="mono"][data-color-scheme="dark"] {
+  --color-primary: 229 231 235;
+  --color-primary-content: 3 7 18;
+  --color-secondary: 156 163 175;
+  --color-accent: 209 213 219;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="mono"][data-color-scheme="system"] {
+    --color-primary: 229 231 235;
+    --color-primary-content: 3 7 18;
+    --color-secondary: 156 163 175;
+    --color-accent: 209 213 219;
+  }
+}
+
 #root {
   height: 100%;
   width: 100%;
