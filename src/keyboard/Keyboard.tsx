@@ -505,7 +505,7 @@ export default function Keyboard() {
   }, [keymap, selectedLayerIndex]);
 
   return (
-    <div className="grid grid-cols-[auto_1fr] grid-rows-[1fr_minmax(10em,auto)] bg-base-300 max-w-full min-w-0 min-h-0">
+    <div className="grid grid-cols-[auto_1fr] grid-rows-[1fr_18rem] bg-base-300 max-w-full min-w-0 min-h-0">
       <div className="p-2 flex flex-col gap-2 bg-base-200 row-span-2">
         {layouts && (
           <div className="col-start-3 row-start-1 row-end-2">
@@ -564,7 +564,7 @@ export default function Keyboard() {
         </div>
       )}
       {keymap && behaviors && (
-        <div className="p-2 col-start-2 row-start-2 bg-base-200 min-w-0">
+        <div className="p-2 col-start-2 row-start-2 bg-base-200 min-w-0 h-full overflow-hidden">
           <KeyAssignPanel
             selectedKeyPosition={selectedKeyPosition}
             selectedLayerIndex={selectedLayerIndex}
