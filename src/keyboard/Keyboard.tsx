@@ -22,6 +22,7 @@ import type { GetBehaviorDetailsResponse } from "@zmkfirmware/zmk-studio-ts-clie
 import { LayerPicker } from "./LayerPicker";
 import { PhysicalLayoutPicker } from "./PhysicalLayoutPicker";
 import { Keymap as KeymapComp } from "./Keymap";
+import { findKeyPositionsByHidUsage, keyboardCodeToHidUsage } from "./keyTester";
 import { useConnectedDeviceData } from "../rpc/useConnectedDeviceData";
 import { ConnectionContext } from "../rpc/ConnectionContext";
 import { UndoRedoContext } from "../undoRedo";
@@ -31,6 +32,7 @@ import { LockState } from "@zmkfirmware/zmk-studio-ts-client/core";
 import { deserializeLayoutZoom, LayoutZoom } from "./PhysicalLayout";
 import { useLocalStorageState } from "../misc/useLocalStorageState";
 import { KeyAssignPanel } from "./KeyAssignPanel";
+import { HidUsageLabel } from "./HidUsageLabel";
 
 type BehaviorMap = Record<number, GetBehaviorDetailsResponse>;
 
@@ -160,6 +162,17 @@ function useLayouts(): [
 
 export default function Keyboard() {
   const lockState = useContext(LockStateContext);
+  const [showKeyTester, setShowKeyTester] = useState(false);
+  const [testerPressedUsages, setTesterPressedUsages] = useState<number[]>([]);
+  const [testerEvents, setTesterEvents] = useState<
+    {
+      kind: "down" | "up";
+      code: string;
+      key: string;
+      usage: number | null;
+      at: number;
+    }[]
+  >([]);
   const [
     layouts,
     _setLayouts,
@@ -621,8 +634,98 @@ export default function Keyboard() {
     }
   }, [keymap, selectedLayerIndex]);
 
+  useEffect(() => {
+    if (!showKeyTester) {
+      setTesterPressedUsages([]);
+      setTesterEvents([]);
+      return;
+    }
+
+    const isTypingTarget = (target: EventTarget | null) => {
+      if (!(target instanceof HTMLElement)) return false;
+      const tag = target.tagName.toLowerCase();
+      if (tag === "input" || tag === "textarea" || tag === "select") return true;
+      return target.isContentEditable;
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!showKeyTester) return;
+      if (isTypingTarget(e.target)) return;
+      if (e.repeat) return;
+      const usage = keyboardCodeToHidUsage(e.code);
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (usage !== null) {
+        setTesterPressedUsages((prev) =>
+          prev.includes(usage) ? prev : [...prev, usage]
+        );
+      }
+
+      setTesterEvents((prev) =>
+        [
+          { kind: "down" as const, code: e.code, key: e.key, usage, at: Date.now() },
+          ...prev,
+        ].slice(0, 30)
+      );
+    };
+
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (!showKeyTester) return;
+      if (isTypingTarget(e.target)) return;
+      const usage = keyboardCodeToHidUsage(e.code);
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (usage !== null) {
+        setTesterPressedUsages((prev) => prev.filter((u) => u !== usage));
+      }
+
+      setTesterEvents((prev) =>
+        [
+          { kind: "up" as const, code: e.code, key: e.key, usage, at: Date.now() },
+          ...prev,
+        ].slice(0, 30)
+      );
+    };
+
+    window.addEventListener("keydown", onKeyDown, { capture: true });
+    window.addEventListener("keyup", onKeyUp, { capture: true });
+    return () => {
+      window.removeEventListener("keydown", onKeyDown, { capture: true } as any);
+      window.removeEventListener("keyup", onKeyUp, { capture: true } as any);
+    };
+  }, [showKeyTester]);
+
+  const highlightedKeyPositions = useMemo(() => {
+    if (!showKeyTester || !keymap || !behaviors) return undefined;
+    const bindings = keymap.layers[selectedLayerIndex]?.bindings || [];
+    const positions = new Set<number>();
+    for (const usage of testerPressedUsages) {
+      for (const pos of findKeyPositionsByHidUsage({
+        keymapBindings: bindings,
+        behaviors,
+        usage,
+      })) {
+        positions.add(pos);
+      }
+    }
+    return positions;
+  }, [showKeyTester, keymap, behaviors, selectedLayerIndex, testerPressedUsages]);
+
+  const testerLogLines = useMemo(() => {
+    if (!showKeyTester) return [];
+    const max = 12;
+    const lines = testerEvents.slice(0, max).reverse(); // oldest -> newest
+    return lines.map((ev, idx) => {
+      const age = lines.length - 1 - idx; // 0 newest
+      const opacity = Math.max(0.08, 0.35 - age * 0.03);
+      return { ev, idx, opacity };
+    });
+  }, [showKeyTester, testerEvents]);
+
   return (
-    <div className="grid grid-cols-[auto_1fr] grid-rows-[1fr_28rem] bg-base-300 max-w-full min-w-0 min-h-0">
+    <div className="grid grid-cols-[auto_1fr] grid-rows-[1fr_32rem] bg-base-300 max-w-full min-w-0 min-h-0">
       <div className="p-2 flex flex-col gap-2 bg-base-200 row-span-2">
         {layouts && (
           <div className="col-start-3 row-start-1 row-end-2">
@@ -649,9 +752,63 @@ export default function Keyboard() {
             />
           </div>
         )}
+
+        <button
+          type="button"
+          className="px-3 py-2 rounded text-sm border bg-base-100 text-base-content border-base-300 hover:bg-base-300"
+          onClick={() => setShowKeyTester((v) => !v)}
+        >
+          Key Tester {showKeyTester ? "(On)" : "(Off)"}
+        </button>
       </div>
       {layouts && keymap && behaviors && (
         <div className="p-2 col-start-2 row-start-1 grid items-center justify-center relative min-w-0">
+          {showKeyTester && (
+            <div className="absolute inset-0 pointer-events-none z-0">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-[64px] font-bold tracking-widest text-base-content/5 select-none">
+                  TESTER MODE
+                </div>
+              </div>
+              <div className="absolute bottom-3 left-3 right-3 flex justify-between gap-6">
+                <div className="text-sm text-base-content/30">
+                  Key tester enabled
+                </div>
+                <div className="text-xs text-base-content/30">
+                  Press keys to highlight mapped positions
+                </div>
+              </div>
+              <div className="absolute bottom-10 left-3">
+                <div className="flex flex-col gap-1">
+                  {testerLogLines.map(({ ev, idx, opacity }) => (
+                    <div
+                      key={`${ev.at}-${idx}`}
+                      className="text-sm font-mono select-none"
+                      style={{ opacity }}
+                    >
+                      <span className="inline-block w-7 opacity-80">
+                        {ev.kind === "down" ? "down" : "up"}
+                      </span>
+                      <span className="inline-block w-36">
+                        {ev.code}
+                      </span>
+                      <span className="inline-block w-16 opacity-80">
+                        {ev.key}
+                      </span>
+                      <span className="opacity-90">
+                        {ev.usage !== null ? (
+                          <HidUsageLabel hid_usage={ev.usage} />
+                        ) : (
+                          "—"
+                        )}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          <div className="relative z-10">
           <KeymapComp
             keymap={keymap}
             layout={layouts[selectedPhysicalLayoutIndex]}
@@ -659,10 +816,12 @@ export default function Keyboard() {
             scale={keymapScale}
             selectedLayerIndex={selectedLayerIndex}
             selectedKeyPosition={selectedKeyPosition}
+            highlightedKeyPositions={highlightedKeyPositions}
             onKeyPositionClicked={setSelectedKeyPosition}
           />
+          </div>
           <select
-            className="absolute top-2 right-2 h-8 rounded px-2"
+            className="absolute top-2 right-2 z-20 h-8 rounded px-2"
             value={keymapScale}
             onChange={(e) => {
               const value = deserializeLayoutZoom(e.target.value);

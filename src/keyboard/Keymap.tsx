@@ -237,6 +237,7 @@ export interface KeymapProps {
   scale: LayoutZoom;
   selectedLayerIndex: number;
   selectedKeyPosition: number | undefined;
+  highlightedKeyPositions?: Set<number>;
   onKeyPositionClicked: (keyPosition: number) => void;
 }
 
@@ -247,6 +248,7 @@ export const Keymap = ({
   scale,
   selectedLayerIndex,
   selectedKeyPosition,
+  highlightedKeyPositions,
   onKeyPositionClicked,
 }: KeymapProps) => {
   if (!keymap.layers[selectedLayerIndex]) {
@@ -296,6 +298,7 @@ export const Keymap = ({
       hoverZoom={true}
       zoom={scale}
       selectedPosition={selectedKeyPosition}
+      highlightedPositions={highlightedKeyPositions}
       onPositionClicked={onKeyPositionClicked}
     />
   );

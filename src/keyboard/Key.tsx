@@ -3,6 +3,7 @@ import BehaviorShortNames from "./behavior-short-names.json";
 
 interface KeyProps {
   selected?: boolean;
+  highlighted?: boolean;
   width: number;
   height: number;
   oneU: number;
@@ -36,6 +37,7 @@ const shortenHeader = (header: string | undefined) => {
 
 export const Key = ({
   selected = false,
+  highlighted = false,
   width,
   height,
   oneU,
@@ -48,8 +50,15 @@ export const Key = ({
 
   return (
     <button
-      className={`group rounded relative flex justify-center items-center cursor-pointer transition-all hover:shadow-xl hover:ring-1 hover:ring-gray-300 hover:scale-125 ${selected ? "bg-primary text-primary-content" : "bg-base-100 text-base-content"
-        }`}
+      className={`group rounded relative flex justify-center items-center cursor-pointer transition-all hover:shadow-xl hover:ring-1 hover:ring-gray-300 hover:scale-125 ${
+        selected
+          ? "bg-primary text-primary-content"
+          : "bg-base-100 text-base-content"
+      } ${
+        highlighted
+          ? "ring-4 ring-accent shadow-2xl outline outline-2 outline-accent/50"
+          : ""
+      }`}
       style={{
         width: `${pixelWidth}px`,
         height: `${pixelHeight}px`,

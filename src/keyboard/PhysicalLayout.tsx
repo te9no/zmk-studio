@@ -31,6 +31,7 @@ export function deserializeLayoutZoom(value: string): LayoutZoom {
 interface PhysicalLayoutProps {
   positions: Array<KeyPosition>;
   selectedPosition?: number;
+  highlightedPositions?: Set<number>;
   oneU?: number;
   hoverZoom?: boolean;
   zoom?: LayoutZoom;
@@ -74,6 +75,7 @@ function scalePosition(
 export const PhysicalLayout = ({
   positions,
   selectedPosition,
+  highlightedPositions,
   oneU = 48,
   onPositionClicked,
   ...props
@@ -133,6 +135,7 @@ export const PhysicalLayout = ({
         <Key
           oneU={oneU}
           selected={idx === selectedPosition}
+          highlighted={highlightedPositions?.has(idx)}
           {...p}
         />
       </div>
