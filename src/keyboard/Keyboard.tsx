@@ -164,6 +164,9 @@ export default function Keyboard() {
   const lockState = useContext(LockStateContext);
   const [showKeyTester, setShowKeyTester] = useState(false);
   const [testerPressedUsages, setTesterPressedUsages] = useState<number[]>([]);
+  const [testerHitUsages, setTesterHitUsages] = useState<Set<number>>(
+    () => new Set()
+  );
   const [testerEvents, setTesterEvents] = useState<
     {
       kind: "down" | "up";
@@ -637,6 +640,7 @@ export default function Keyboard() {
   useEffect(() => {
     if (!showKeyTester) {
       setTesterPressedUsages([]);
+      setTesterHitUsages(new Set());
       setTesterEvents([]);
       return;
     }
@@ -660,6 +664,12 @@ export default function Keyboard() {
         setTesterPressedUsages((prev) =>
           prev.includes(usage) ? prev : [...prev, usage]
         );
+        setTesterHitUsages((prev) => {
+          if (prev.has(usage)) return prev;
+          const next = new Set(prev);
+          next.add(usage);
+          return next;
+        });
       }
 
       setTesterEvents((prev) =>
@@ -701,7 +711,9 @@ export default function Keyboard() {
     if (!showKeyTester || !keymap || !behaviors) return undefined;
     const bindings = keymap.layers[selectedLayerIndex]?.bindings || [];
     const positions = new Set<number>();
-    for (const usage of testerPressedUsages) {
+    const combinedUsages = new Set<number>(testerHitUsages);
+    for (const usage of testerPressedUsages) combinedUsages.add(usage);
+    for (const usage of combinedUsages) {
       for (const pos of findKeyPositionsByHidUsage({
         keymapBindings: bindings,
         behaviors,
@@ -711,7 +723,14 @@ export default function Keyboard() {
       }
     }
     return positions;
-  }, [showKeyTester, keymap, behaviors, selectedLayerIndex, testerPressedUsages]);
+  }, [
+    showKeyTester,
+    keymap,
+    behaviors,
+    selectedLayerIndex,
+    testerPressedUsages,
+    testerHitUsages,
+  ]);
 
   const testerLogLines = useMemo(() => {
     if (!showKeyTester) return [];
@@ -723,6 +742,12 @@ export default function Keyboard() {
       return { ev, idx, opacity };
     });
   }, [showKeyTester, testerEvents]);
+
+  const resetKeyTester = useCallback(() => {
+    setTesterPressedUsages([]);
+    setTesterHitUsages(new Set());
+    setTesterEvents([]);
+  }, []);
 
   return (
     <div className="grid grid-cols-[auto_1fr] grid-rows-[1fr_32rem] bg-base-300 max-w-full min-w-0 min-h-0">
@@ -760,6 +785,15 @@ export default function Keyboard() {
         >
           Key Tester {showKeyTester ? "(On)" : "(Off)"}
         </button>
+        {showKeyTester && (
+          <button
+            type="button"
+            className="px-3 py-2 rounded text-sm border bg-base-100 text-base-content border-base-300 hover:bg-base-300"
+            onClick={resetKeyTester}
+          >
+            Reset highlights
+          </button>
+        )}
       </div>
       {layouts && keymap && behaviors && (
         <div className="p-2 col-start-2 row-start-1 grid items-center justify-center relative min-w-0">
